@@ -6,6 +6,25 @@ This repository contains a Python script that scrapes posts from Donald Trump's 
 
 **UPDATE:** You can access an archive, updated every five minutes, here: [https://ix.cnn.io/data/truth-social/truth_archive.json](https://ix.cnn.io/data/truth-social/truth_archive.json). (Change `.json` to `.csv` or `.parquet` if you prefer those formats). 
 
+## New-post monitor and notifications (this fork)
+
+`.github/workflows/truth-social-monitor.yml` runs `monitor.py` every 10 minutes. It:
+
+1. Fetches the latest posts (CNN's public archive first, then Truth Social's API directly, then via ScrapeOps if `SCRAPE_PROXY_KEY` is set). No secrets are required.
+2. Appends any post not already in `data/truth_archive.json` or `data/log/` to `data/log/YYYY-MM.jsonl` (one JSON post per line, same fields as below) and commits it.
+3. Sends a notification. By default it opens (and immediately closes) a GitHub issue that @mentions the repo owner, which triggers GitHub's email / mobile-app notifications. The first run backfills everything since the old archive ended and sends a single "monitor active" notice.
+
+### Setup
+
+- **Enable Actions** on the fork (Actions tab → "I understand my workflows, go ahead and enable them"). Scheduled workflows only run from the default branch.
+- **Enable Issues** (Settings → General → Features → Issues) for the default GitHub notification. Forks have Issues turned off by default.
+- Optional extra channels, added under Settings → Secrets and variables → Actions → Secrets:
+  - `NTFY_TOPIC`: push notifications to your phone via the free [ntfy](https://ntfy.sh) app. Pick a long, hard-to-guess topic name and subscribe to it in the app.
+  - `DISCORD_WEBHOOK_URL`, `SLACK_WEBHOOK_URL`, or `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`.
+- Optional variables (Settings → Secrets and variables → Actions → Variables): `NOTIFY_GITHUB_ISSUE=false` to turn off issue notifications, `GITHUB_ISSUE_KEEP_OPEN=true` to leave issues open, `MAX_NOTIFY` (posts per notification, default 10), `SOURCES` (default `cnn,direct,proxy`).
+
+If every configured channel fails, the run fails (GitHub emails you about failed runs) and the posts are retried on the next run instead of being silently logged.
+
 ## How it works
 
 ### Fetching data from Truth Social API

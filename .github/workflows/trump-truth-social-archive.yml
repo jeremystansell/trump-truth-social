@@ -2,10 +2,10 @@ name: trump-truth-social-archive
 
 on:
   workflow_dispatch:
-  schedule:
-    # - cron: '47 10-23 * * *'  # Runs every hour at :47 from 10 AM to 11 PM UTC (5 AM - 6 PM ET)
-    # - cron: '47 0-3 * * *'    # Runs every hour at :47 from 12 AM to 3 AM UTC (7 PM - 11 PM ET)
-    - cron: '47 */4 * * *'  # Runs every 4 hours at :47
+  # Schedule disabled in this fork: it needs the upstream author's AWS and ScrapeOps secrets.
+  # New posts are logged by truth-social-monitor.yml instead.
+  # schedule:
+  #   - cron: '47 */4 * * *'  # Runs every 4 hours at :47
 
 jobs:
   build:
